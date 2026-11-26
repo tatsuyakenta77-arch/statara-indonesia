@@ -23,10 +23,21 @@ function setupCanvas(canvas, height) {
 }
 
 function niceMax(max) {
+  if (max <= 0) return 1;
   const step = Math.pow(10, Math.floor(Math.log10(max)));
   const scaled = max / step;
-  const nice = scaled <= 1 ? 1 : scaled <= 2 ? 2 : scaled <= 5 ? 5 : 10;
-  return nice * step;
+  const steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+  for (const s of steps) {
+    if (scaled <= s) return s * step;
+  }
+  return 10 * step;
+}
+
+// Value labels above points: keep the first and last labels inside the canvas.
+function labelAlign(px, width) {
+  if (px > width - 34) return 'right';
+  if (px < 34) return 'left';
+  return 'center';
 }
 
 function drawAxes(ctx, x0, y0, x1, y1, yTicks, formatTick) {
@@ -101,14 +112,14 @@ export function drawLineChart(canvas, years, values, options = {}) {
   ctx.stroke();
   // Points + labels.
   ctx.fillStyle = color;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'bottom';
   values.forEach((v, i) => {
     ctx.beginPath();
     ctx.arc(px(i), py(v), 3.5, 0, Math.PI * 2);
     ctx.fill();
     if (i === 0 || i === values.length - 1 || i % 3 === 0) {
       ctx.fillStyle = INK;
+      ctx.textAlign = labelAlign(px(i), width);
+      ctx.textBaseline = 'bottom';
       ctx.fillText(fmt(v), px(i), py(v) - 8);
       ctx.fillStyle = color;
     }
@@ -161,7 +172,7 @@ export function drawBarChart(canvas, years, values, options = {}) {
     const h = Math.abs(py(0) - y);
     ctx.fillRect(cx - barW / 2, topY, barW, Math.max(h, 2));
     ctx.fillStyle = INK;
-    ctx.textAlign = 'center';
+    ctx.textAlign = labelAlign(cx, width);
     ctx.textBaseline = 'bottom';
     ctx.fillText(fmt(v), cx, topY - 4);
   });
