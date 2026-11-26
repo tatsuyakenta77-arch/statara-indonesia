@@ -36,7 +36,7 @@ function niceMax(max) {
 // Value labels above points: keep the first and last labels inside the canvas.
 function labelAlign(px, width) {
   if (px > width - 34) return 'right';
-  if (px < 34) return 'left';
+  if (px < 72) return 'left';
   return 'center';
 }
 
